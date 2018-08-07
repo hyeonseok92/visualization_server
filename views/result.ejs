@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Visualizer</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="css/sticky-footer.css" rel="stylesheet">
+    <script src="js/jquery.min.js"></script>
+  </head>
+
+  <body>
+    <div class="form-group">
+      <button type="button" class="btn btn-primary" name="prevBtn" id="prevBtn">Prev state</button>
+      <button type="button" class="btn btn-primary" name="nextBtn" id="nextBtn">Next state</button>
+    </div>
+    <canvas id="myCanvas" style = "left: 0px; top: 0px;"></canvas>
+    <textarea class="form-control" rows="5" id="graphText" style="display:none"><%= graphRaw  %></textarea>
+    <textarea class="form-control" rows="5" id="logText" style="display:none"><%= logRaw %></textarea>
+  <script>
+    (function() {
+      var htmlCanvas = document.getElementById('myCanvas');
+      var context = htmlCanvas.getContext('2d');
+      var graphText = $('textarea#graphText').val();
+      var logText = $('textarea#logText').val();
+      var graph = {'vertice':[], 'edges': []};
+      var log = [];
+      var turn = 0;
+      //Decided by Graph Generator
+      var minX = 0.0;
+      var minY = 0.0;
+      var maxX = 0.0;
+      var maxY = 0.0;
+      var radius = 0.0;
+      var ratio = 1.0;
+
+      // Obtain a graphics context on the
+      // canvas element for drawing.
+
+      parseData();
+      function parseData() {
+        parseGraph();
+        parseLog();
+      }
+      function parseGraph() {
+        var sp = graphText.trim().split('\n');
+        for (var i = 0; i < sp.length; i++){
+          var sp2= sp[i].trim().split(' ');
+          if (sp2.length >= 2){
+            var point = [parseFloat(sp2[0]), parseFloat(sp2[1])];
+            graph.vertice.push(point);
+            graph.edges.push([]);
+            for (var j = 3; j < sp2.length; j++){
+              graph.edges[i].push(Number(sp2[j]))
+            }
+          }
+        }
+        for (var i = 0; i < graph.vertice.length; i++){
+          minX = Math.min(minX, graph.vertice[i][0]);
+          maxX = Math.max(maxX, graph.vertice[i][0]);
+          minY = Math.min(minY, graph.vertice[i][1]);
+          maxY = Math.max(maxY, graph.vertice[i][1]);
+        }
+        radius = Math.min((maxX-minX), (maxY-minY)) / 200.0;
+        minX -= radius;
+        maxX += radius;
+        minY -= radius;
+        maxY += radius;
+      }
+      function parseLog() {
+        var sp = logText.trim().split('\n');
+        for (var i = 0; i < sp.length; i++){
+          if (sp[i].trim == ''){
+            continue;
+          }
+          var point = sp[i].trim().split(' ');
+          log.push(Number(point[0]));
+        }
+      }
+      // Start listening to resize events and
+      // draw canvas.
+      initialize();
+
+      function initialize() {
+        // Register an event listener to
+        // call the resizeCanvas() function each time 
+        // the window is resized.
+        window.addEventListener('resize', resizeCanvas, false);
+
+        // Draw canvas border for the first time.
+        resizeCanvas();
+      }
+
+      // Display custom canvas.
+      function drawEdge(startVid, endVid) {
+        context.beginPath();
+        context.moveTo((graph.vertice[startVid][0] - minX) * ratio,
+            (graph.vertice[startVid][1] - minY) * ratio);
+        context.lineTo((graph.vertice[endVid][0] - minX) * ratio,
+            (graph.vertice[endVid][1] - minY) * ratio);
+        context.stroke();
+      }
+      function drawVertex(vid) {
+        context.beginPath();
+        context.arc((graph.vertice[vid][0]-minX) * ratio,
+            (graph.vertice[vid][1]-minY) * ratio, radius * ratio, 0, 2 * Math.PI, false);
+        context.fillStyle = 'white';
+        context.fill();
+        context.stroke();
+      }
+      function visitVertex(vid) {
+        context.beginPath();
+        context.arc((graph.vertice[vid][0]-minX) * ratio,
+            (graph.vertice[vid][1]-minY) * ratio, radius * ratio, 0, 2 * Math.PI, false);
+        context.fillStyle = 'green';
+        context.fill();
+        context.stroke();
+      }
+      function redraw() {
+        context.strokeRect(0, 0, window.innerWidth, window.innerHeight * 0.8);
+        for (var i = 0; i < graph.edges.length; i++){
+          for (var j = 0; j < graph.edges[i].length; j++){
+            drawEdge(i, graph.edges[i][j]);
+          }
+        }
+        for (var i = 0; i < graph.vertice.length; i++){
+          drawVertex(i);
+        }
+        for (var i = 0; i < turn; i++){
+          visitVertex(log[i]);
+        }
+      }
+
+      // Runs each time the DOM window resize event fires.
+      // Resets the canvas dimensions to match window,
+      // then draws the new borders accordingly.
+      function resizeCanvas() {
+        htmlCanvas.width = window.innerWidth;
+        htmlCanvas.height = window.innerHeight * 0.8;
+        ratio = Math.min(htmlCanvas.width / (maxX-minX), htmlCanvas.height / (maxY-minY));
+        redraw();
+      }
+
+      $("button#prevBtn").click(function(){
+        if (turn > 0){
+          drawVertex(log[--turn]);
+        }
+      });
+      $("button#nextBtn").click(function(){
+        if (turn < log.length){
+          visitVertex(log[turn++]);
+        }
+      });
+    })();
+	</script>
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="js/ie10-viewport-bug-workaround.js"></script>
+  </body>
+</html>

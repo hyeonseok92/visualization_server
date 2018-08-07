@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>그래프 탐색 시각화 툴</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="css/sticky-footer.css" rel="stylesheet">
+
+    <script src="js/jquery.min.js"></script>
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+    <!-- Begin page content -->
+    <div class="container">
+      <div class="page-header">
+        <h1>Sticky footer</h1>
+      </div>
+      <p class="lead">사용한 graph data file과 학생분의 프로그램에서 출력된 log file을 입력해주세요</p>
+      <form action="/" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
+        <div class="custom-file" name="files">
+          <input type="file" class="custom-file-input" name="graphFiles" id="aa">
+          <label class="custom-file-label" for="graphFiles">graph data file를 선택하세요</label>
+        </div>
+        <div class="custom-file" name="files">
+          <input type="file" class="custom-file-input" name="graphFiles" id="bb">
+          <label class="custom-file-label" for="graphFiles">log file을 선택하세요</label>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" style="margin-top:20px">시각화</button>
+      </form>
+    </div>
+
+    <footer class="footer">
+      <div class="container">
+        <p class="text-muted">Powered by SCSLAB</p>
+      </div>
+    </footer>
+
+    <script>
+      function validateForm(){
+        var files = $("input[type=file]");
+        if (files[0].files.length != 0 && files[1].files.length != 0){
+          return true;
+        }
+        alert('Upload your files!');
+        return false;
+      }
+      $("input[type=file]").change(function () {
+        var fieldVal = $(this).val();
+        // Change the node's value by removing the fake path (Chrome)
+        fieldVal = fieldVal.replace("C:\\fakepath\\", "");
+        if (fieldVal != undefined || fieldVal != "") {
+          $(this).next(".custom-file-label").text(fieldVal);
+        }
+      });
+    </script>
+    <script src="js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="js/ie10-viewport-bug-workaround.js"></script>
+  </body>
+</html>
+
