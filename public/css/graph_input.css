@@ -6,6 +6,7 @@ html {
 }
 body {
   /* Margin bottom by footer height */
+  padding-top: 5rem;
   margin-bottom: 60px;
 }
 .footer {

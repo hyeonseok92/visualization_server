@@ -12,20 +12,88 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="css/sticky-footer.css" rel="stylesheet">
+    <link href="css/result.css" rel="stylesheet">
     <script src="js/jquery.min.js"></script>
+    <style>
+    button{
+      margin-right:10px;
+    }
+    </style>
   </head>
 
   <body>
-    <div class="form-group">
-      <button type="button" class="btn btn-primary" name="prevBtn" id="prevBtn">Prev state</button>
-      <button type="button" class="btn btn-primary" name="nextBtn" id="nextBtn">Next state</button>
-    </div>
-    <canvas id="myCanvas" style = "left: 0px; top: 0px;"></canvas>
-    <textarea class="form-control" rows="5" id="graphText" style="display:none"><%= graphRaw  %></textarea>
-    <textarea class="form-control" rows="5" id="logText" style="display:none"><%= logRaw %></textarea>
+		<nav class="navbar navbar-expand-md navbar-dark bg-dark" id="navbar">
+      <a class="navbar-brand" href="#">Graph Visualizer</a>
+      <!--
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+      </button> -->
+
+      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="./">홈으로<span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="#" name="prevBtn" id="prevBtn">이전상태<span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="#" name="nextBtn" id="nextBtn">다음상태<span class="sr-only">(current)</span></a>
+          </li>
+          <!--
+            <li class="nav-item">
+            <a class="nav-link" href="#">다음상태</a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link disabled" href="#">Disabled</a>
+            </li>
+            <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="https://example.com" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+            <div class="dropdown-menu" aria-labelledby="dropdown01">
+            <a class="dropdown-item" href="#">Action</a>
+            <a class="dropdown-item" href="#">Another action</a>
+            <a class="dropdown-item" href="#">Something else here</a>
+            </div>
+            </li>
+          -->
+          <!--<li class="nav-item active">
+            <button class="btn btn-outline-danger my-2 my-sm-0" type="button" name="prevBtn" id="prevBtn">이전 상태</button>
+          </li>
+          <li class="nav-item active">
+            <button class="btn btn-outline-warning my-2 my-sm-0" type="button" name="nextBtn" id="nextBtn">다음 상태</button>
+          </li> -->
+          <li class="nav-item">
+            <a class="nav-link" href="#">현재 턴 :<span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item">
+            <input class="form-control col-md-12" type="text" style="width:70px;margin-right:10px" placeholder="턴수" aria-label="Speed">
+          </li>
+          <li class="nav-item active">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="button">이동</button>
+          </li>
+        </ul>
+        <form class="form-inline my-2 my-lg-0">
+          <input class="form-control mr-sm-2" type="text" placeholder="재생 속도(second)" aria-label="Search">
+          <button class="btn btn-outline-success my-2 my-sm-0" type="button">재생</button>
+        </form>
+      </div>
+    </nav>
+    <!--<div class="form-group">
+      <button type="button" class="btn btn-primary" name="prevBtn" id="prevBtn">이전 상태</button>
+      <button type="button" class="btn btn-primary" name="nextBtn" id="nextBtn">다음 상태</button>
+    </div>-->
+    <canvas id="myCanvas" style="left: 0px; top: 0px;"></canvas>
+    <textarea class="form-control" id="graphText" style="display:none"><%= graphRaw  %></textarea>
+    <textarea class="form-control" id="logText" style="display:none"><%= logRaw %></textarea>
+
+    <!--<footer class="footer">
+      <div class="container">
+        <p class="text-muted">Powered by SCSLAB</p>
+      </div>
+    </footer>-->
   <script>
     (function() {
+      var navbar = $('#navbar');
       var htmlCanvas = document.getElementById('myCanvas');
       var context = htmlCanvas.getContext('2d');
       var graphText = $('textarea#graphText').val();
@@ -68,7 +136,7 @@
           minY = Math.min(minY, graph.vertice[i][1]);
           maxY = Math.max(maxY, graph.vertice[i][1]);
         }
-        radius = Math.min((maxX-minX), (maxY-minY)) / 200.0;
+        radius = Math.min((maxX-minX), (maxY-minY)) / 160.0;
         minX -= radius;
         maxX += radius;
         minY -= radius;
@@ -119,12 +187,12 @@
         context.beginPath();
         context.arc((graph.vertice[vid][0]-minX) * ratio,
             (graph.vertice[vid][1]-minY) * ratio, radius * ratio, 0, 2 * Math.PI, false);
-        context.fillStyle = 'green';
+        context.fillStyle = 'red';
         context.fill();
         context.stroke();
       }
       function redraw() {
-        context.strokeRect(0, 0, window.innerWidth, window.innerHeight * 0.8);
+        context.strokeRect(0, 0, htmlCanvas.width, htmlCanvas.height);
         for (var i = 0; i < graph.edges.length; i++){
           for (var j = 0; j < graph.edges[i].length; j++){
             drawEdge(i, graph.edges[i][j]);
@@ -143,17 +211,17 @@
       // then draws the new borders accordingly.
       function resizeCanvas() {
         htmlCanvas.width = window.innerWidth;
-        htmlCanvas.height = window.innerHeight * 0.8;
+        htmlCanvas.height = (window.innerHeight - $('nav#navbar').height()) * 0.95;
         ratio = Math.min(htmlCanvas.width / (maxX-minX), htmlCanvas.height / (maxY-minY));
         redraw();
       }
 
-      $("button#prevBtn").click(function(){
+      $("#prevBtn").click(function(){
         if (turn > 0){
           drawVertex(log[--turn]);
         }
       });
-      $("button#nextBtn").click(function(){
+      $("#nextBtn").click(function(){
         if (turn < log.length){
           visitVertex(log[turn++]);
         }
