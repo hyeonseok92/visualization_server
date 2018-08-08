@@ -44,46 +44,46 @@ app.post('/', uploads.array('graphFiles', 2), function (req, res) {
     res.render('result', {"graphRaw" : graphData, "logRaw" : logData});
 });
 
-app.get('/best', function (req, res) {
-    res.render('index', {"ranks" : ranks, "test_time" : test_time});
-    //res.send(best_scores);
-});
-
-app.get('/best/:repo', function (req, res) {
-    repo = req.params.repo;
-    if (repo in best_scores)
-        res.send(best_scores[repo]);
-    else
-        res.send("Not passed yet or failed or wrong student id");
-});
-
-app.get('/result/:repo', function (req, res) {
-    repo = req.params.repo;
-    if (repo in scores)
-        res.send(scores[repo]);
-    else if (repo in logs)
-        res.send(logs[repo]);
-    else
-        res.send("Not evaluated yet or wrong student id");
-});
-
-app.post('/update_score', function (req, res) {
-    best_scores = req.body.best_scores;
-    scores = req.body.scores;
-    logs = req.body.logs;
-    test_time = req.body.test_time;
-    var new_ranks = [];
-    for (var repo in best_scores){
-        v = JSON.parse(JSON.stringify(best_scores[repo]))
-        v["student"] = repo;
-        new_ranks.push(v);
-    }
-    new_ranks.sort(function(a,b){
-        return a["total"] - b["total"];
-    });
-    ranks = new_ranks;
-    console.log(req.body);
-    res.send("");
-});
+//app.get('/best', function (req, res) {
+//    res.render('index', {"ranks" : ranks, "test_time" : test_time});
+//    //res.send(best_scores);
+//});
+//
+//app.get('/best/:repo', function (req, res) {
+//    repo = req.params.repo;
+//    if (repo in best_scores)
+//        res.send(best_scores[repo]);
+//    else
+//        res.send("Not passed yet or failed or wrong student id");
+//});
+//
+//app.get('/result/:repo', function (req, res) {
+//    repo = req.params.repo;
+//    if (repo in scores)
+//        res.send(scores[repo]);
+//    else if (repo in logs)
+//        res.send(logs[repo]);
+//    else
+//        res.send("Not evaluated yet or wrong student id");
+//});
+//
+//app.post('/update_score', function (req, res) {
+//    best_scores = req.body.best_scores;
+//    scores = req.body.scores;
+//    logs = req.body.logs;
+//    test_time = req.body.test_time;
+//    var new_ranks = [];
+//    for (var repo in best_scores){
+//        v = JSON.parse(JSON.stringify(best_scores[repo]))
+//        v["student"] = repo;
+//        new_ranks.push(v);
+//    }
+//    new_ranks.sort(function(a,b){
+//        return a["total"] - b["total"];
+//    });
+//    ranks = new_ranks;
+//    console.log(req.body);
+//    res.send("");
+//});
 
 module.exports = app;
