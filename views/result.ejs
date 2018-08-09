@@ -34,6 +34,8 @@
           <li class="nav-item active">
             <a class="nav-link" href="./">홈으로<span class="sr-only">(current)</span></a>
           </li>
+        </ul>
+        <ul class="navbar-nav mr-auto">
           <li class="nav-item active">
             <a class="nav-link" href="#" name="prevBtn" id="prevBtn">이전상태<span class="sr-only">(current)</span></a>
           </li>
@@ -41,9 +43,6 @@
             <a class="nav-link" href="#" name="nextBtn" id="nextBtn">다음상태<span class="sr-only">(current)</span></a>
           </li>
           <!--
-            <li class="nav-item">
-            <a class="nav-link" href="#">다음상태</a>
-            </li>
             <li class="nav-item">
             <a class="nav-link disabled" href="#">Disabled</a>
             </li>
@@ -56,25 +55,31 @@
             </div>
             </li>
           -->
-          <!--<li class="nav-item active">
-            <button class="btn btn-outline-danger my-2 my-sm-0" type="button" name="prevBtn" id="prevBtn">이전 상태</button>
-          </li>
-          <li class="nav-item active">
-            <button class="btn btn-outline-warning my-2 my-sm-0" type="button" name="nextBtn" id="nextBtn">다음 상태</button>
-          </li> -->
           <li class="nav-item">
             <a class="nav-link" href="#">현재 턴 :<span class="sr-only">(current)</span></a>
           </li>
           <li class="nav-item">
-            <input class="form-control col-md-12" type="text" style="width:70px;margin-right:10px" placeholder="턴수" aria-label="Speed">
+            <input class="form-control col-md-12" type="text" style="width:70px;" placeholder="턴수" aria-label="turn" value="0" name="curTurn" id="curTurn">
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" name="totalTurn" id="totalTurn"> / <span class="sr-only">(current)</span></a>
           </li>
           <li class="nav-item active">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="button">이동</button>
+            <button class="btn btn-outline-success my-2 my-sm-0" type="button" name="setTurn" id="setTurn">이동</button>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">정점 반지름 : <span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item">
+            <input class="form-control col-md-12" type="text" style="width:70px;" placeholder="반지름 길이" aria-label="radius" name="radius" id="radius">
+          </li>
+          <li class="nav-item active">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="button" name="setRadius" id="setRadius">변경</button>
           </li>
         </ul>
         <form class="form-inline my-2 my-lg-0">
-          <input class="form-control mr-sm-2" type="text" placeholder="재생 속도(second)" aria-label="Search">
-          <button class="btn btn-outline-success my-2 my-sm-0" type="button">재생</button>
+          <input class="form-control mr-sm-2" type="text" placeholder="재생 속도(millisecond)" aria-label="Speed" name="speed" id="speed">
+          <button class="btn btn-outline-success my-2 my-sm-0" type="button" name="playBtn" id="playBtn">재생</button>
         </form>
       </div>
     </nav>
@@ -83,7 +88,8 @@
       <button type="button" class="btn btn-primary" name="nextBtn" id="nextBtn">다음 상태</button>
     </div>-->
     <canvas id="myCanvas" style="left: 0px; top: 0px;"></canvas>
-    <textarea class="form-control" id="graphText" style="display:none"><%= graphRaw  %></textarea>
+    <textarea class="form-control" id="vertexText" style="display:none"><%= vertexRaw  %></textarea>
+    <textarea class="form-control" id="edgeText" style="display:none"><%= edgeRaw %></textarea>
     <textarea class="form-control" id="logText" style="display:none"><%= logRaw %></textarea>
 
     <!--<footer class="footer">
@@ -96,7 +102,8 @@
       var navbar = $('#navbar');
       var htmlCanvas = document.getElementById('myCanvas');
       var context = htmlCanvas.getContext('2d');
-      var graphText = $('textarea#graphText').val();
+      var vertexText = $('textarea#vertexText').val();
+      var edgeText = $('textarea#edgeText').val();
       var logText = $('textarea#logText').val();
       var graph = {'vertice':[], 'edges': []};
       var log = [];
@@ -106,28 +113,43 @@
       var minY = 0.0;
       var maxX = 0.0;
       var maxY = 0.0;
-      var radius = 0.0;
+      var radius = 5.0;
       var ratio = 1.0;
+      var isPlaying = false;
+      var playHandler = null;
 
       // Obtain a graphics context on the
       // canvas element for drawing.
 
       parseData();
+      // Start listening to resize events and
+      // draw canvas.
+      initialize();
+
       function parseData() {
         parseGraph();
         parseLog();
       }
       function parseGraph() {
-        var sp = graphText.trim().split('\n');
+        var sp = vertexText.trim().split('\n');
         for (var i = 0; i < sp.length; i++){
-          var sp2= sp[i].trim().split(' ');
+          var sp2 = sp[i].trim().split(' ');
           if (sp2.length >= 2){
             var point = [parseFloat(sp2[0]), parseFloat(sp2[1])];
             graph.vertice.push(point);
             graph.edges.push([]);
-            for (var j = 3; j < sp2.length; j++){
-              graph.edges[i].push(Number(sp2[j]))
+          }
+        }
+        sp = edgeText.trim().split('\n'); // 0th line: vertex개수, 1st: edge개수
+        var numEdge = Number(sp[1]);
+        for (var i = 0; i < numEdge; i++){
+          var sp2= sp[i+2].trim().split(' ');
+          if (sp2.length >= 2){
+            var edge = [parseFloat(sp2[1]), 1];
+            if (sp2.length >= 3){
+              edge[1] = parseFloat(sp2[2]);
             }
+            graph.edges[parseFloat(sp2[0])].push(edge); // [V_end, weight]
           }
         }
         for (var i = 0; i < graph.vertice.length; i++){
@@ -136,11 +158,11 @@
           minY = Math.min(minY, graph.vertice[i][1]);
           maxY = Math.max(maxY, graph.vertice[i][1]);
         }
-        radius = Math.min((maxX-minX), (maxY-minY)) / 160.0;
-        minX -= radius;
-        maxX += radius;
-        minY -= radius;
-        maxY += radius;
+        var margin = Math.min((maxX-minX), (maxY-minY)) / 10.0;
+        minX -= margin;
+        maxX += margin;
+        minY -= margin;
+        maxY += margin;
       }
       function parseLog() {
         var sp = logText.trim().split('\n');
@@ -151,10 +173,8 @@
           var point = sp[i].trim().split(' ');
           log.push(Number(point[0]));
         }
+        $("#totalTurn").text("/ " + log.length);
       }
-      // Start listening to resize events and
-      // draw canvas.
-      initialize();
 
       function initialize() {
         // Register an event listener to
@@ -167,8 +187,10 @@
       }
 
       // Display custom canvas.
-      function drawEdge(startVid, endVid) {
+      function drawEdge(startVid, endVid, edgeWidth) {
         context.beginPath();
+        context.strokeStyle = '#C0C0C0';
+        context.lineWidth = edgeWidth;
         context.moveTo((graph.vertice[startVid][0] - minX) * ratio,
             (graph.vertice[startVid][1] - minY) * ratio);
         context.lineTo((graph.vertice[endVid][0] - minX) * ratio,
@@ -177,32 +199,50 @@
       }
       function drawVertex(vid) {
         context.beginPath();
+        context.strokeStyle = '#000000';
+        context.lineWidth = 1;
         context.arc((graph.vertice[vid][0]-minX) * ratio,
             (graph.vertice[vid][1]-minY) * ratio, radius * ratio, 0, 2 * Math.PI, false);
         context.fillStyle = 'white';
         context.fill();
         context.stroke();
       }
-      function visitVertex(vid) {
+      function drawVisitingVertex(vid) {
         context.beginPath();
+        context.strokeStyle = '#000000';
+        context.lineWidth = 1;
         context.arc((graph.vertice[vid][0]-minX) * ratio,
             (graph.vertice[vid][1]-minY) * ratio, radius * ratio, 0, 2 * Math.PI, false);
         context.fillStyle = 'red';
         context.fill();
         context.stroke();
       }
+      function drawVisitedVertex(vid) {
+        context.beginPath();
+        context.strokeStyle = '#000000';
+        context.lineWidth = 1;
+        context.arc((graph.vertice[vid][0]-minX) * ratio,
+            (graph.vertice[vid][1]-minY) * ratio, radius * ratio, 0, 2 * Math.PI, false);
+        context.fillStyle = '#0000ff';
+        context.fill();
+        context.stroke();
+      }
       function redraw() {
+        context.clearRect(0, 0, htmlCanvas.width, htmlCanvas.height);
         context.strokeRect(0, 0, htmlCanvas.width, htmlCanvas.height);
         for (var i = 0; i < graph.edges.length; i++){
           for (var j = 0; j < graph.edges[i].length; j++){
-            drawEdge(i, graph.edges[i][j]);
+            drawEdge(i, graph.edges[i][j][0], graph.edges[i][j][1]);
           }
         }
         for (var i = 0; i < graph.vertice.length; i++){
           drawVertex(i);
         }
-        for (var i = 0; i < turn; i++){
-          visitVertex(log[i]);
+        for (var i = 0; i < turn-1; i++){
+          drawVisitedVertex(log[i]);
+        }
+        if (turn != 0){
+          drawVisitingVertex(log[turn-1]);
         }
       }
 
@@ -215,17 +255,80 @@
         ratio = Math.min(htmlCanvas.width / (maxX-minX), htmlCanvas.height / (maxY-minY));
         redraw();
       }
+      function increaseTurn(){
+        if (turn < log.length){
+          if (turn > 0){
+            drawVisitedVertex(log[turn-1]);
+          }
+          drawVisitingVertex(log[turn]);
+          turn++;
+          $("#curTurn").val(turn);
+        }
+      }
+      function decreaseTurn(){
+        if (turn > 0){
+          turn--;
+          $("#curTurn").val(turn);
+          drawVertex(log[turn]);
+          if (turn > 0){
+            drawVisitingVertex(log[turn-1]);
+          }
+        }
+      }
+      function handlePlaying(){
+        if (isPlaying){
+          $("#playBtn").text("중지");
+        }
+        else{
+          $("#playBtn").text("재생");
+        }
+        if (isPlaying){
+          playHandler = setInterval(function(){
+            increaseTurn();
+          }, Number($("#speed").val()));
+        }
+        else{
+          clearInterval(playHandler);
+        }
+      }
 
       $("#prevBtn").click(function(){
-        if (turn > 0){
-          drawVertex(log[--turn]);
+        decreaseTurn();
+        if (isPlaying){
+          isPlaying = false;
+          handlePlaying();
         }
       });
       $("#nextBtn").click(function(){
-        if (turn < log.length){
-          visitVertex(log[turn++]);
+        increaseTurn();
+        if (isPlaying){
+          isPlaying = false;
+          handlePlaying();
         }
       });
+      $("#playBtn").click(function(){
+        isPlaying = !isPlaying;
+        handlePlaying();
+      });
+      $("#setTurn").click(function(){
+        if (isPlaying){
+          isPlaying = false;
+          handlePlaying();
+        }
+        turn = $("#curTurn").val()
+        redraw();
+      });
+      $("#setRadius").click(function(){
+        radius = $("#radius").val();
+        redraw();
+      });
+      function componentToHex(c) {
+        var hex = c.toString(16);
+        return hex.length == 1 ? "0" + hex : hex;
+      }
+      function rgbToHex(r, g, b) {
+        return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+      }
     })();
 	</script>
     <!-- Bootstrap core JavaScript

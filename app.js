@@ -14,34 +14,32 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json({limit: '100mb'}));
 
-var best_scores = {};
-var ranks = [];
-var scores = {};
-var logs = {};
-var test_time = '';
+//var best_scores = {};
+//var ranks = [];
+//var scores = {};
+//var logs = {};
+//var test_time = '';
 
 app.get('/', function (req, res) {
     res.render('graph_input');
 });
 
-app.post('/', uploads.array('graphFiles', 2), function (req, res) {
-    var graphData = fs.readFileSync(req.files[0].path,'utf8');
-    var logData = fs.readFileSync(req.files[1].path,'utf8');
-    fs.unlink(req.files[0].path, function (err){
-      if (err){
-        console.log(err);
-      }
-      console.log('successfully deleted ' + req.files[0].path);
-    });
-    fs.unlink(req.files[1].path, function (err){
-      if (err){
-        console.log(err);
-      }
-      console.log('successfully deleted ' + req.files[1].path);
-    });
-    console.log(util.inspect(req.files[0], false, false));
-    console.log(util.inspect(req.files[1], false, false));
-    res.render('result', {"graphRaw" : graphData, "logRaw" : logData});
+app.post('/', uploads.array('files', 3), function (req, res) {
+    var vertexData = fs.readFileSync(req.files[0].path,'utf8');
+    var edgeData = fs.readFileSync(req.files[1].path,'utf8');
+    var logData = fs.readFileSync(req.files[2].path,'utf8');
+    for (var i = 0; i < 3; i++){
+      console.log(util.inspect(req.files[i], false, false));
+    }
+    for (var i = 0; i < 3; i++){
+      fs.unlink(req.files[i].path, function (err){
+        if (err){
+          console.log(err);
+        }
+        //console.log('successfully deleted ' + req.files[i].path);
+      });
+    }
+    res.render('result', {"vertexRaw" : vertexData , "edgeRaw" : edgeData, "logRaw" : logData});
 });
 
 //app.get('/best', function (req, res) {

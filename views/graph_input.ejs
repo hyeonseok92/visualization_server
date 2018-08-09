@@ -32,12 +32,16 @@
       <p class="lead">사용한 graph data file과 프로그램에서 출력된 log file을 입력해주세요</p>
       <form action="./" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
         <div class="custom-file" name="files">
-          <input type="file" class="custom-file-input" name="graphFiles" id="aa">
-          <label class="custom-file-label" for="graphFiles">graph data file를 선택하세요</label>
+          <input type="file" class="custom-file-input" name="files">
+          <label class="custom-file-label" for="files">coordinate file를 선택하세요</label>
         </div>
         <div class="custom-file" name="files">
-          <input type="file" class="custom-file-input" name="graphFiles" id="bb">
-          <label class="custom-file-label" for="graphFiles">log file을 선택하세요</label>
+          <input type="file" class="custom-file-input" name="files">
+          <label class="custom-file-label" for="files">graph file을 선택하세요</label>
+        </div>
+        <div class="custom-file" name="files">
+          <input type="file" class="custom-file-input" name="files">
+          <label class="custom-file-label" for="files">log file을 선택하세요</label>
         </div>
         <button type="submit" class="btn btn-primary btn-block" style="margin-top:20px">시각화</button>
       </form>
